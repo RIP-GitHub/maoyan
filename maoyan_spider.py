@@ -3,6 +3,7 @@
 import re
 import requests
 from scrapy import Selector
+import matplotlib.pyplot as plt
 from fontTools.ttLib import TTFont
 from font_model.font_knn import Classify
 
@@ -39,9 +40,16 @@ class MaoYanSpider(object):
             points = font['glyf'][glyph_order].coordinates
             coors = [_ for c in points for _ in c]
             datas.append(coors)
+            point_x = [int(point[0]) for point in points]
+            point_y = [int(point[1]) for point in points]
+            plt.subplot(2, 5, index + 1)
+            plt.plot(point_x, point_y)
+            plt.title(glyph_order)
+        plt.show()
         glyph_orders = [item.lower().replace('uni', '') for item in glyph_orders]
         nums = [str(int(num)) for num in self.classify.knn_predict(datas)[:10]]
         num_map = dict(zip(glyph_orders, nums))
+        print('我们预测的: ', num_map)
         return num_map
 
     def get_num_from_font(self, string):
